@@ -107,7 +107,7 @@ export default function CalendarPage() {
       </div>
 
       {/* Main Content with padding for dock */}
-      <div className="flex-1 pb-24">
+      <div className="flex-1">
         {daySelected === false ? (
           <div className="container mx-auto max-w-sm p-4 md:flex">
             <Calendar

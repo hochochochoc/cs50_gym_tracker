@@ -38,7 +38,7 @@ const EditableField = ({ initialValue, onSave, type = "number" }) => {
         onKeyDown={handleKeyDown}
         className={`rounded border border-gray-300 px-1 text-black focus:outline-none focus:ring focus:ring-blue-300 ${
           type === "number" ? "w-8 text-center" : "w-full"
-        }`}
+        } [-moz-appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none`}
         autoFocus
       />
     );

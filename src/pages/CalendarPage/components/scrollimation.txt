@@ -1,0 +1,212 @@
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+
+const ANIMATION_DURATION = 500; // Reduced for quicker testing
+const SCROLL_ADJUSTMENT = 100; // Pixels to scroll to ensure card is visible
+
+const ExerciseCard = ({ 
+  exercise, 
+  isExpanded, 
+  onAnimationStart, 
+  onAnimationEnd 
+}) => {
+  const contentRef = useRef(null);
+  const cardRef = useRef(null);
+  const animationRef = useRef(null);
+
+  useEffect(() => {
+    if (contentRef.current && cardRef.current) {
+      // Prepare the animation
+      const contentElement = contentRef.current;
+      const cardElement = cardRef.current;
+
+      // Cleanup any existing animations
+      animationRef.current?.cancel();
+
+      // Measure initial and final states
+      const initialHeight = '0px';
+      const finalHeight = `${contentElement.scrollHeight}px`;
+
+      // Create animation
+      const animation = contentElement.animate([
+        { 
+          maxHeight: isExpanded ? initialHeight : finalHeight,
+          opacity: isExpanded ? '0' : '1'
+        },
+        { 
+          maxHeight: isExpanded ? finalHeight : initialHeight,
+          opacity: isExpanded ? '1' : '0'
+        }
+      ], {
+        duration: ANIMATION_DURATION,
+        easing: 'ease-in-out',
+        fill: 'forwards'
+      });
+
+      // Store reference to current animation
+      animationRef.current = animation;
+
+      // Notify parent about animation start
+      onAnimationStart();
+
+      // Add event listeners for animation events
+      animation.onfinish = () => {
+        onAnimationEnd();
+      };
+
+      // Cleanup
+      return () => {
+        animation.cancel();
+      };
+    }
+  }, [isExpanded, onAnimationStart, onAnimationEnd]);
+
+  return (
+    <div 
+      ref={cardRef}
+      className={`
+        rounded-lg shadow-md p-4 transition-colors
+        ${isExpanded ? 'bg-blue-50/20' : 'bg-white'}
+      `}
+    >
+      <h3 className="text-lg font-bold">{exercise.name}</h3>
+      <p className="text-gray-600 mb-2">{exercise.weight} kg</p>
+      
+      <div 
+        ref={contentRef}
+        className="overflow-hidden"
+        style={{
+          maxHeight: '0',
+          opacity: '0'
+        }}
+      >
+        <div className="pt-4 border-t border-gray-200">
+          {exercise.sets.map((set, index) => (
+            <div key={index} className="flex justify-between py-2">
+              <span>Set {index + 1}</span>
+              <span>{set.reps} reps</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ExerciseList = () => {
+  const [expandedIndex, setExpandedIndex] = useState(0);
+  const [animating, setAnimating] = useState(false);
+  const containerRef = useRef(null);
+  const cardsRef = useRef([]);
+  const animationInProgressRef = useRef(false);
+  
+  const exercises = [
+    {
+      name: "Bench Press",
+      weight: 80,
+      sets: [{ reps: 12 }, { reps: 10 }, { reps: 8 }]
+    },
+    {
+      name: "Squats",
+      weight: 100,
+      sets: [{ reps: 10 }, { reps: 10 }, { reps: 8 }]
+    },
+    {
+      name: "Deadlift",
+      weight: 120,
+      sets: [{ reps: 8 }, { reps: 8 }, { reps: 6 }]
+    },
+    {
+      name: "Shoulder Press",
+      weight: 60,
+      sets: [{ reps: 12 }, { reps: 10 }, { reps: 8 }]
+    },
+    {
+      name: "Barbell Rows",
+      weight: 70,
+      sets: [{ reps: 12 }, { reps: 10 }, { reps: 10 }]
+    }
+  ];
+
+  const handleAnimationStart = useCallback(() => {
+    if (!animationInProgressRef.current) {
+      animationInProgressRef.current = true;
+      setAnimating(true);
+    }
+  }, []);
+
+  const handleAnimationEnd = useCallback(() => {
+    animationInProgressRef.current = false;
+    setAnimating(false);
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (animating) return; // Prevent scroll-based changes during animation
+
+      const container = containerRef.current;
+      if (!container) return;
+      
+      const scrollPercentage = (window.scrollY / (container.scrollHeight - window.innerHeight));
+      const sectionSize = 1 / exercises.length;
+      const currentSection = Math.floor(scrollPercentage / sectionSize);
+      const newIndex = Math.min(currentSection, exercises.length - 1);
+      
+      if (newIndex !== expandedIndex) {
+        // Try to scroll to make the new card fully visible
+        if (cardsRef.current[newIndex]) {
+          const cardElement = cardsRef.current[newIndex];
+          const cardRect = cardElement.getBoundingClientRect();
+          const windowHeight = window.innerHeight;
+
+          if (newIndex === exercises.length - 1) {
+            // If it's the last card, scroll to the bottom
+            window.scrollTo({
+              top: container.scrollHeight - windowHeight,
+              behavior: 'smooth'
+            });
+          } else if (cardRect.top < 0) {
+            // Card is above viewport, scroll up
+            window.scrollBy({
+              top: cardRect.top - SCROLL_ADJUSTMENT,
+              behavior: 'smooth'
+            });
+          } else if (cardRect.bottom > windowHeight) {
+            // Card is below viewport, scroll down
+            window.scrollBy({
+              top: cardRect.bottom - windowHeight + SCROLL_ADJUSTMENT,
+              behavior: 'smooth'
+            });
+          }
+        }
+
+        setExpandedIndex(newIndex);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [exercises.length, expandedIndex, animating]);
+
+  return (
+    <div 
+      ref={containerRef}
+      className="max-w-md mx-auto p-4"
+      style={{ height: `${exercises.length * 100}vh` }}
+    >
+      <div className="space-y-8 sticky top-4">
+        {exercises.map((exercise, index) => (
+          <ExerciseCard
+            key={index}
+            exercise={exercise}
+            isExpanded={expandedIndex === index}
+            onAnimationStart={handleAnimationStart}
+            onAnimationEnd={handleAnimationEnd}
+            ref={(el) => cardsRef.current[index] = el}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default ExerciseList;

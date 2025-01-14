@@ -5,7 +5,6 @@ import { arrayMove, useSortable } from "@dnd-kit/sortable";
 import { CSS as DndCSS } from "@dnd-kit/utilities";
 import WorkoutDisplay from "../WorkoutDisplay";
 import { format } from "date-fns";
-// import { workoutService } from "../../services/workoutService";
 import { workoutService } from "@/services/workoutService";
 import { planService } from "@/services/planService";
 
@@ -41,54 +40,6 @@ const SortableExercise = ({
     backgroundColor: "white",
   };
 
-  const formatRepsDisplay = (sets) => {
-    const uniqueWeights = [...new Set(sets.map((set) => set.weight))];
-    if (uniqueWeights.length === 1) {
-      return (
-        <span>
-          {sets.map((set, idx) => (
-            <React.Fragment key={idx}>
-              <EditableField
-                initialValue={set.reps}
-                onSave={(newReps) => onUpdateReps(exerciseIndex, idx, newReps)}
-              />
-              {idx < sets.length - 1 ? " " : ""}
-            </React.Fragment>
-          ))}
-        </span>
-      );
-    } else {
-      return (
-        <span>
-          {sets.reduce((acc, set, idx) => {
-            if (idx % 2 === 0) {
-              const pair = (
-                <React.Fragment key={idx}>
-                  <EditableField
-                    initialValue={set.reps}
-                    onSave={(newReps) =>
-                      onUpdateReps(exerciseIndex, idx, newReps)
-                    }
-                  />
-                  /
-                  <EditableField
-                    initialValue={sets[idx + 1]?.reps}
-                    onSave={(newReps) =>
-                      onUpdateReps(exerciseIndex, idx + 1, newReps)
-                    }
-                  />
-                  {idx < sets.length - 2 ? " " : ""}
-                </React.Fragment>
-              );
-              acc.push(pair);
-            }
-            return acc;
-          }, [])}
-        </span>
-      );
-    }
-  };
-
   const weights = [...new Set(exercise.sets.map((set) => set.weight))];
   const weightDisplay = weights.map((weight, idx) => (
     <React.Fragment key={weight}>
@@ -100,12 +51,28 @@ const SortableExercise = ({
     </React.Fragment>
   ));
 
+  const formatRepsDisplay = (sets) => {
+    return (
+      <div className="flex flex-col space-y-1">
+        {sets.map((set, idx) => (
+          <div key={idx} className="flex items-center">
+            <span className="w-16 text-sm text-gray-500">Set {idx + 1}:</span>
+            <EditableField
+              initialValue={`${set.reps} reps`}
+              onSave={(newReps) => onUpdateReps(exerciseIndex, idx, newReps)}
+            />
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className={`m-2 rounded-xl border border-gray-200 bg-white p-4 shadow-lg transition-shadow ${
-        isDragging ? "shadow-2xl" : ""
+      className={`mb-2 rounded-lg p-4 shadow-md transition-colors ${
+        isDragging ? "bg-blue-50/20" : "bg-white"
       }`}
     >
       <div className="flex items-center gap-3">
@@ -118,13 +85,13 @@ const SortableExercise = ({
             <GripHorizontal className="h-6 w-6 text-gray-400" />
           </div>
         )}
-        <h2 className="flex-1 font-bold text-gray-800">
+        <h3 className="flex-1 text-lg font-bold">
           <EditableField
             initialValue={exercise.name}
             onSave={(newName) => onUpdateName(exerciseIndex, newName)}
             type="text"
           />
-        </h2>
+        </h3>
         {!isEditMode && (
           <button
             onClick={() => onDelete(exerciseIndex)}
@@ -134,10 +101,21 @@ const SortableExercise = ({
           </button>
         )}
       </div>
-      <p className="mt-1 text-gray-700">Weight: {weightDisplay}kg</p>
-      <p className="mt-1 text-gray-700">
-        Reps per set: {formatRepsDisplay(exercise.sets)}
-      </p>
+      <p className="mb-2 text-gray-600">Weight: {weightDisplay}kg</p>
+      <div className="border-t border-gray-200">
+        {exercise.sets.map((set, idx) => (
+          <div key={idx} className="flex justify-between py-1">
+            <span>Set {idx + 1}</span>
+            <div className="flex items-center gap-1">
+              <EditableField
+                initialValue={set.reps}
+                onSave={(newReps) => onUpdateReps(exerciseIndex, idx, newReps)}
+              />
+              <span>reps</span>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
