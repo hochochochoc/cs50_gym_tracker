@@ -1,0 +1,25 @@
+// THINGS I WANT TO DO NOW FOR THE FIRST VERSION
+
+
+// MON
+// Make plans changeable -- done
+// Show weights in graph -- done
+// Make chart height expand by 2 reps at least -- done
+
+// TUE
+// Customize days (eliminate exercise, change order) -- done
+
+// WED
+// Approve changes from day to plans -- done
+// split calendar part into components -- done
+
+//THU
+// History of all changes + green - red, also left out -- done
+
+// FRI
+// Log in screen on loading
+// UI update?
+
+
+// SAT & SUN
+// Video (just youtube) 
