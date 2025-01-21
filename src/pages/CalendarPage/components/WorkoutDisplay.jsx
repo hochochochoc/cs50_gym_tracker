@@ -255,24 +255,24 @@ const AnimatedWorkoutDisplay = ({
   return (
     <div
       ref={containerRef}
-      className="container mx-auto max-w-md px-4 py-3"
+      className="container mx-auto max-w-md px-4 py-2"
       style={{ minHeight: `${workout.exercises.length * 100}vh` }}
     >
       <div className="sticky top-4">
-        <h1 className="mb-2 text-center text-xl font-bold text-gray-800">
+        <h1 className="mb-2 text-center text-xl font-bold text-blue-400">
           {formatDate(date)} - {workout.type}
         </h1>
         <div className="mb-4 flex justify-center gap-2">
           <button
             onClick={() => setIsEditMode(!isEditMode)}
-            className="inline-flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-1 text-sm text-gray-700 hover:bg-gray-200"
+            className="inline-flex items-center gap-2 rounded-lg border border-white bg-gradient-to-br from-white to-sky-200 px-3 py-1 text-sm text-gray-700 hover:bg-gray-200"
           >
             <Settings2 size={16} />
             {isEditMode ? "Done" : "Edit Order"}
           </button>
           <button
             onClick={addNewExercise}
-            className="inline-flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-1 text-sm text-gray-700 hover:bg-gray-200"
+            className="inline-flex items-center gap-2 rounded-lg border border-white bg-gradient-to-tr from-white to-sky-200 px-3 py-1 text-sm text-gray-700 hover:bg-gray-200"
           >
             + Add Exercise
           </button>

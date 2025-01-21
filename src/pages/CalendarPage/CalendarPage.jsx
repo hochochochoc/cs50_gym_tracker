@@ -96,14 +96,17 @@ export default function CalendarPage() {
   }, [date, user]);
 
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-br from-sky-100 to-blue-300 p-2">
+    <div className="flex min-h-full flex-col bg-gradient-to-br from-sky-100 to-blue-300 p-2">
       <ChangePopup show={showSuccess} onClose={() => setShowSuccess(false)} />
-
-      <div className="h-[97.5vh] rounded-3xl bg-white/60">
+      <div className="fixed h-[97.5vh] w-[96vw] rounded-lg bg-white/60"></div>
+      <div className="relative bg-transparent">
         {/* Main Content with padding for dock */}
         <div className="flex-1">
           {daySelected === false ? (
-            <div className="container mx-auto max-w-sm p-4 md:flex">
+            <div className="container max-w-sm px-4 md:flex">
+              <h2 className="my-4 text-center text-2xl font-bold text-blue-400">
+                Calendar
+              </h2>
               <Calendar
                 mode="single"
                 selected={date}
@@ -119,6 +122,7 @@ export default function CalendarPage() {
                 month={displayedMonth}
                 onMonthChange={setDisplayedMonth}
               />
+              <div className="h-[51.2vh]"></div>
             </div>
           ) : (
             <DayView
@@ -135,7 +139,6 @@ export default function CalendarPage() {
           )}
         </div>
       </div>
-
       <BottomNav />
     </div>
   );

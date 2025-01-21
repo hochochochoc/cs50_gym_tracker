@@ -48,12 +48,12 @@ export default function ProfilePage() {
 
       <div className="mx-auto w-full max-w-md flex-1 p-2">
         {user ? (
-          <div className="flex h-[98vh] flex-col rounded-3xl bg-white/80 shadow-xl backdrop-blur-md">
-            <div className="rounded-t-3xl bg-blue-50/50 px-8 py-10 text-center">
-              <h2 className="text-2xl font-bold text-blue-900">
+          <div className="flex h-[97.5vh] flex-col rounded-3xl bg-white/80 shadow-xl backdrop-blur-md">
+            <div className="rounded-t-3xl bg-blue-50/50 px-8 py-4 text-center">
+              <h2 className="text-2xl font-bold text-blue-400">
                 {user.displayName}
               </h2>
-              <p className="text-blue-600">{user.email}</p>
+              <p className="text-blue-300">{user.email}</p>
             </div>
 
             <div className="flex-1 divide-y divide-blue-100">
@@ -77,9 +77,10 @@ export default function ProfilePage() {
                 <Lock className="mr-4 h-6 w-6 text-blue-400" />
                 <span className="font-medium text-blue-900">Privacy</span>
               </div>
+              <div></div>
             </div>
 
-            <div className="mt-auto border-t border-blue-100 p-8 pb-44">
+            <div className="p-8 pb-[22vh]">
               <button
                 onClick={logout}
                 className="w-full rounded-2xl bg-blue-100 py-4 font-medium text-blue-600 transition-colors hover:bg-blue-200"

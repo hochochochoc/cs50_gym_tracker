@@ -14,11 +14,11 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }) {
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
         month: "space-y-4",
         caption: "flex justify-center pt-1 relative items-center",
-        caption_label: "text-sm text-black font-medium",
+        caption_label: "text-sm text-sky-500 font-medium",
         nav: "space-x-1 flex items-center",
         nav_button: cn(
           buttonVariants({ variant: "outline" }),
-          "h-7 w-7 bg-transparent p-0 text-black border border-gray-500 hover:opacity-100",
+          "h-7 w-7 bg-transparent p-0 text-sky-500 border border-sky-500 hover:opacity-100",
         ),
         nav_button_previous: "absolute left-1",
         nav_button_next: "absolute right-1",
@@ -32,7 +32,7 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }) {
           "h-9 w-9 p-0 font-normal text-black pointer-events-auto",
         ),
         day_range_end: "day-range-end",
-        day_today: "bg-black text-white",
+        day_today: "bg-gradient-to-bl from-sky-300 to-blue-400 text-white",
         day_outside: "day-outside text-muted-foreground pointer-events-auto",
         day_disabled: "text-muted-foreground opacity-50",
         day_range_middle:

@@ -52,7 +52,7 @@ const PlansPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-100 to-blue-300 p-2">
-      <div className="min-h-[97.5vh] rounded-3xl bg-white/80 px-3 py-4">
+      <div className="min-h-[97.5vh] rounded-3xl bg-white/80 px-3 py-4 shadow-xl">
         <h2 className="mb-4 text-center text-2xl font-bold text-blue-400">
           Plans
         </h2>
@@ -80,7 +80,7 @@ const PlansPage = () => {
                 onClick={() => setOpenDay(isOpen ? null : day)}
                 className="flex cursor-pointer items-center justify-between px-5 py-3 transition-colors hover:bg-blue-50/50"
               >
-                <h2 className="text-[16px] font-semibold text-blue-900">
+                <h2 className="text-[16px] font-semibold text-gray-900">
                   {day} - {workout.type}
                 </h2>
                 {isOpen ? (
@@ -100,7 +100,7 @@ const PlansPage = () => {
                         key={index}
                         className="rounded-2xl bg-transparent p-2 px-4 last:mb-0"
                       >
-                        <h2 className="font-bold text-blue-900">
+                        <h2 className="font-bold text-gray-900">
                           <EditableField
                             initialValue={exercise.name}
                             onSave={(value) =>
@@ -109,10 +109,10 @@ const PlansPage = () => {
                             type="text"
                           />
                         </h2>
-                        <p className="text-blue-700">
+                        <p className="text-gray-800">
                           Weight: {exercise.sets[0].weight}kg
                         </p>
-                        <p className="mt-0.5 text-blue-700">
+                        <p className="mt-0.5 text-gray-800">
                           Reps:{" "}
                           {exercise.sets.map((set, idx) => (
                             <EditableField

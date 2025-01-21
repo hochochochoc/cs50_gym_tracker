@@ -77,7 +77,7 @@ const ProgressAnalysis = () => {
   const totalLosses = progress.filter((p) => p.status === "loss").length;
 
   return (
-    <div className="mt-2 rounded-3xl bg-white/85 shadow">
+    <div className="mt-2 rounded-3xl bg-white/85 shadow-xl">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className="flex w-full items-center justify-between p-4 text-left"
