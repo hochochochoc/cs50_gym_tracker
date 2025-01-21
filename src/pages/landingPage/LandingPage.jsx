@@ -21,7 +21,7 @@ export default function LandingPage() {
           Welcome to CS50 Fitness Tracker
         </h1>
         <button
-          onClick={() => navigate("/menu")}
+          onClick={() => navigate("/calendar")}
           className="relative z-20 rounded-full bg-blue-950 px-8 py-3 text-lg font-medium text-white shadow-lg transition-all hover:bg-blue-200 hover:shadow-xl"
         >
           Get Started

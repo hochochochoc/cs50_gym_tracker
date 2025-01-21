@@ -48,7 +48,7 @@ export default function ProfilePage() {
 
       <div className="mx-auto w-full max-w-md flex-1 p-2">
         {user ? (
-          <div className="flex h-[97.5vh] flex-col rounded-3xl bg-white/80 shadow-xl backdrop-blur-md">
+          <div className="flex h-[97.5vh] flex-col rounded-3xl bg-white/80 shadow-xl">
             <div className="rounded-t-3xl bg-blue-50/50 px-8 py-4 text-center">
               <h2 className="text-2xl font-bold text-blue-400">
                 {user.displayName}
