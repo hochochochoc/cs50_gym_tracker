@@ -98,7 +98,7 @@ export default function CalendarPage() {
   return (
     <div className="flex min-h-full flex-col bg-gradient-to-br from-sky-100 to-blue-300 p-2">
       <ChangePopup show={showSuccess} onClose={() => setShowSuccess(false)} />
-      <div className="fixed h-[97.5vh] w-[96vw] rounded-lg bg-white/60"></div>
+      <div className="fixed h-[97.5vh] w-[96vw] rounded-3xl bg-white/80 shadow-lg"></div>
       <div className="relative bg-transparent">
         {/* Main Content with padding for dock */}
         <div className="flex-1">

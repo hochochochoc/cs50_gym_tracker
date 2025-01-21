@@ -81,7 +81,9 @@ const PlansPage = () => {
                 className="flex cursor-pointer items-center justify-between px-5 py-3 transition-colors hover:bg-blue-50/50"
               >
                 <h2 className="text-[16px] font-semibold text-gray-900">
-                  {day} - {workout.type}
+                  <span className="font-bold">{day}</span>
+                  <br />
+                  <span className="text-sm text-gray-800">{workout.type}</span>
                 </h2>
                 {isOpen ? (
                   <ChevronUp className="h-5 w-5 text-blue-500" />
@@ -133,6 +135,7 @@ const PlansPage = () => {
           );
         })}
       </div>
+      <div className="h-24"></div>
       <BottomNav />
     </div>
   );

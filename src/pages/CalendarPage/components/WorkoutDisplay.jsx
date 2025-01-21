@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { Settings2, Save, GripHorizontal, X } from "lucide-react";
+import { Settings2, Save, GripHorizontal, X, ChevronLeft } from "lucide-react";
 import { DndContext, closestCenter } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -7,6 +7,7 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import EditableField from "./EditableField";
+import { useNavigate } from "react-router-dom";
 
 const ANIMATION_DURATION = 500;
 const SCROLL_ADJUSTMENT = 100;
@@ -188,6 +189,7 @@ const AnimatedWorkoutDisplay = ({
   const containerRef = useRef(null);
   const cardsRef = useRef([]);
   const animationInProgressRef = useRef(false);
+  const navigate = useNavigate();
 
   const handleAnimationStart = useCallback(() => {
     if (!animationInProgressRef.current) {
@@ -259,9 +261,20 @@ const AnimatedWorkoutDisplay = ({
       style={{ minHeight: `${workout.exercises.length * 100}vh` }}
     >
       <div className="sticky top-4">
-        <h1 className="mb-2 text-center text-xl font-bold text-blue-400">
-          {formatDate(date)} - {workout.type}
-        </h1>
+        <div className="flex">
+          <div
+            onClick={() => navigate("/calendar")}
+            className="mr-4 mt-3 flex h-9 w-9 items-center justify-center rounded-full border border-gray-100 bg-white font-thin text-gray-700"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </div>
+
+          <h1 className="mb-2 text-center text-xl font-bold text-blue-400">
+            <span>{formatDate(date)} -</span>
+            <br /> {workout.type}
+          </h1>
+        </div>
+
         <div className="mb-4 flex justify-center gap-2">
           <button
             onClick={() => setIsEditMode(!isEditMode)}
