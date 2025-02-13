@@ -35,10 +35,9 @@ const EditableField = ({
 
   const handleClick = (e) => {
     if (disabled) {
-      e.stopPropagation(); // Prevent card click when clicking disabled field
+      e.stopPropagation();
       return;
     }
-    console.log("EditableField clicked, disabled:", disabled, "type:", type);
     setIsEditing(true);
   };
 
@@ -54,7 +53,7 @@ const EditableField = ({
           type === "number" ? "w-8 text-center" : "w-full"
         } [-moz-appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none`}
         autoFocus
-        onClick={(e) => e.stopPropagation()} // Prevent card click when editing
+        onClick={(e) => e.stopPropagation()}
       />
     );
   }

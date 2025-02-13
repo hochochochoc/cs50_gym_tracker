@@ -10,7 +10,6 @@ import EditableField from "./EditableField";
 import { useNavigate } from "react-router-dom";
 
 const ANIMATION_DURATION = 500;
-const SCROLL_ADJUSTMENT = 100;
 
 const AnimatedExercise = ({
   exercise,
@@ -99,26 +98,14 @@ const AnimatedExercise = ({
       className={`mb-2 cursor-pointer rounded-lg p-4 shadow-md transition-colors ${
         isDragging ? "bg-blue-50/20" : "bg-white"
       }`}
-      onClick={(e) => {
-        if (!isDragging) {
-          console.log(
-            `Clicked exercise ${exerciseIndex}, currently expanded: ${isExpanded}`,
-          );
-          onCardClick(exerciseIndex);
-        }
-      }}
+      onClick={() => !isDragging && onCardClick(exerciseIndex)}
       id={`exercise-${exerciseIndex}`}
     >
       <div className="flex items-center justify-between gap-3">
         <h3 className="text-lg font-bold">
           <EditableField
             initialValue={exercise.name}
-            onSave={(newName) => {
-              console.log(
-                `Saving new name for exercise ${exerciseIndex}: ${newName}`,
-              );
-              onUpdateName(exerciseIndex, newName);
-            }}
+            onSave={(newName) => onUpdateName(exerciseIndex, newName)}
             type="text"
             disabled={!isExpanded}
           />
@@ -126,7 +113,10 @@ const AnimatedExercise = ({
         <div className="flex items-center gap-2">
           {!isEditMode && (
             <button
-              onClick={() => onDelete(exerciseIndex)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(exerciseIndex);
+              }}
               className="text-gray-500 hover:text-red-500"
             >
               <X size={20} />
@@ -204,20 +194,14 @@ const AnimatedWorkoutDisplay = ({
   const [animating, setAnimating] = useState(false);
   const containerRef = useRef(null);
   const cardsRef = useRef([]);
-  const animationInProgressRef = useRef(false);
-  const isManualScrollRef = useRef(false);
-  const scrollTimeoutRef = useRef(null);
+  const lastScrollTime = useRef(Date.now());
   const navigate = useNavigate();
 
   const handleAnimationStart = useCallback(() => {
-    if (!animationInProgressRef.current) {
-      animationInProgressRef.current = true;
-      setAnimating(true);
-    }
+    setAnimating(true);
   }, []);
 
   const handleAnimationEnd = useCallback(() => {
-    animationInProgressRef.current = false;
     setAnimating(false);
   }, []);
 
@@ -225,82 +209,51 @@ const AnimatedWorkoutDisplay = ({
     (index) => {
       if (!workout || animating) return;
 
-      const element = document.getElementById(`exercise-${index}`);
-      if (element) {
-        const offset = element.offsetTop - SCROLL_ADJUSTMENT;
-        window.scrollTo({
-          top: offset,
-          behavior: "smooth",
-        });
-        setExpandedIndex(index);
-      }
+      const totalHeight =
+        document.documentElement.scrollHeight - window.innerHeight;
+      const exerciseCount = workout.exercises.length;
+      const scrollPercentage = index / (exerciseCount - 1);
+      const targetScrollPosition = totalHeight * scrollPercentage;
+
+      lastScrollTime.current = Date.now();
+      setExpandedIndex(index);
+
+      window.scrollTo({
+        top: targetScrollPosition,
+        behavior: "smooth",
+      });
     },
     [workout, animating],
   );
 
   useEffect(() => {
     const handleScroll = () => {
-      if (animating || !workout || isManualScrollRef.current) return;
+      if (animating || !workout) return;
 
-      const container = containerRef.current;
-      if (!container) return;
+      // If this scroll event is too close to our last programmatic scroll, ignore it
+      if (Date.now() - lastScrollTime.current < 50) return;
 
-      const scrollPercentage =
-        window.scrollY / (container.scrollHeight - window.innerHeight);
-      const sectionSize = 1 / workout.exercises.length;
-      const currentSection = Math.floor(scrollPercentage / sectionSize);
-      const newIndex = Math.min(currentSection, workout.exercises.length - 1);
+      const scrollY = window.scrollY;
+      const maxScroll =
+        document.documentElement.scrollHeight - window.innerHeight;
+      const scrollPercentage = scrollY / maxScroll;
+
+      const exerciseCount = workout.exercises.length;
+      const newIndex = Math.min(
+        Math.floor(scrollPercentage * exerciseCount),
+        exerciseCount - 1,
+      );
 
       if (newIndex !== expandedIndex) {
-        console.log(
-          `Scroll detected - changing expanded index from ${expandedIndex} to ${newIndex}`,
-        );
-
-        if (newIndex === workout.exercises.length - 1) {
-          window.scrollTo({
-            top: document.documentElement.scrollHeight,
-            behavior: "smooth",
-          });
-        }
-
-        if (cardsRef.current[newIndex]) {
-          const cardElement = cardsRef.current[newIndex];
-          const cardRect = cardElement.getBoundingClientRect();
-          const windowHeight = window.innerHeight;
-
-          if (cardRect.top < 0) {
-            console.log(`Adjusting scroll for card ${newIndex} - top overflow`);
-            window.scrollBy({
-              top: cardRect.top - SCROLL_ADJUSTMENT,
-              behavior: "smooth",
-            });
-          } else if (cardRect.bottom > windowHeight) {
-            console.log(
-              `Adjusting scroll for card ${newIndex} - bottom overflow`,
-            );
-            window.scrollBy({
-              top: cardRect.bottom - windowHeight + SCROLL_ADJUSTMENT,
-              behavior: "smooth",
-            });
-          }
-        }
-
         setExpandedIndex(newIndex);
       }
     };
 
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [workout, expandedIndex, animating]);
-
-  // Cleanup timeout on unmount
-  useEffect(() => {
     return () => {
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current);
-      }
+      window.removeEventListener("scroll", handleScroll);
     };
-  }, []);
+  }, [workout, expandedIndex, animating]);
 
   if (!workout) return null;
 
