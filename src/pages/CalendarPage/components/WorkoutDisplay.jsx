@@ -23,6 +23,7 @@ const AnimatedExercise = ({
   onUpdateName,
   onAnimationStart,
   onAnimationEnd,
+  onCardClick,
 }) => {
   const contentRef = useRef(null);
   const cardRef = useRef(null);
@@ -95,16 +96,31 @@ const AnimatedExercise = ({
     <div
       ref={setNodeRef}
       style={style}
-      className={`mb-2 rounded-lg p-4 shadow-md transition-colors ${
+      className={`mb-2 cursor-pointer rounded-lg p-4 shadow-md transition-colors ${
         isDragging ? "bg-blue-50/20" : "bg-white"
       }`}
+      onClick={(e) => {
+        if (!isDragging) {
+          console.log(
+            `Clicked exercise ${exerciseIndex}, currently expanded: ${isExpanded}`,
+          );
+          onCardClick(exerciseIndex);
+        }
+      }}
+      id={`exercise-${exerciseIndex}`}
     >
       <div className="flex items-center justify-between gap-3">
         <h3 className="text-lg font-bold">
           <EditableField
             initialValue={exercise.name}
-            onSave={(newName) => onUpdateName(exerciseIndex, newName)}
+            onSave={(newName) => {
+              console.log(
+                `Saving new name for exercise ${exerciseIndex}: ${newName}`,
+              );
+              onUpdateName(exerciseIndex, newName);
+            }}
             type="text"
+            disabled={!isExpanded}
           />
         </h3>
         <div className="flex items-center gap-2">
@@ -189,6 +205,8 @@ const AnimatedWorkoutDisplay = ({
   const containerRef = useRef(null);
   const cardsRef = useRef([]);
   const animationInProgressRef = useRef(false);
+  const isManualScrollRef = useRef(false);
+  const scrollTimeoutRef = useRef(null);
   const navigate = useNavigate();
 
   const handleAnimationStart = useCallback(() => {
@@ -203,9 +221,26 @@ const AnimatedWorkoutDisplay = ({
     setAnimating(false);
   }, []);
 
+  const scrollToExercise = useCallback(
+    (index) => {
+      if (!workout || animating) return;
+
+      const element = document.getElementById(`exercise-${index}`);
+      if (element) {
+        const offset = element.offsetTop - SCROLL_ADJUSTMENT;
+        window.scrollTo({
+          top: offset,
+          behavior: "smooth",
+        });
+        setExpandedIndex(index);
+      }
+    },
+    [workout, animating],
+  );
+
   useEffect(() => {
     const handleScroll = () => {
-      if (animating || !workout) return;
+      if (animating || !workout || isManualScrollRef.current) return;
 
       const container = containerRef.current;
       if (!container) return;
@@ -217,7 +252,10 @@ const AnimatedWorkoutDisplay = ({
       const newIndex = Math.min(currentSection, workout.exercises.length - 1);
 
       if (newIndex !== expandedIndex) {
-        // If last card is reached, scroll to bottom
+        console.log(
+          `Scroll detected - changing expanded index from ${expandedIndex} to ${newIndex}`,
+        );
+
         if (newIndex === workout.exercises.length - 1) {
           window.scrollTo({
             top: document.documentElement.scrollHeight,
@@ -225,18 +263,21 @@ const AnimatedWorkoutDisplay = ({
           });
         }
 
-        // Try to scroll to make the new card fully visible
         if (cardsRef.current[newIndex]) {
           const cardElement = cardsRef.current[newIndex];
           const cardRect = cardElement.getBoundingClientRect();
           const windowHeight = window.innerHeight;
 
           if (cardRect.top < 0) {
+            console.log(`Adjusting scroll for card ${newIndex} - top overflow`);
             window.scrollBy({
               top: cardRect.top - SCROLL_ADJUSTMENT,
               behavior: "smooth",
             });
           } else if (cardRect.bottom > windowHeight) {
+            console.log(
+              `Adjusting scroll for card ${newIndex} - bottom overflow`,
+            );
             window.scrollBy({
               top: cardRect.bottom - windowHeight + SCROLL_ADJUSTMENT,
               behavior: "smooth",
@@ -251,6 +292,15 @@ const AnimatedWorkoutDisplay = ({
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [workout, expandedIndex, animating]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
+  }, []);
 
   if (!workout) return null;
 
@@ -313,6 +363,7 @@ const AnimatedWorkoutDisplay = ({
                 onUpdateName={updateName}
                 onAnimationStart={handleAnimationStart}
                 onAnimationEnd={handleAnimationEnd}
+                onCardClick={scrollToExercise}
                 ref={(el) => (cardsRef.current[index] = el)}
               />
             ))}

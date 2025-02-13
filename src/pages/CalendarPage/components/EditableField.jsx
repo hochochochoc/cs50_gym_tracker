@@ -1,6 +1,11 @@
 import { useState } from "react";
 
-const EditableField = ({ initialValue, onSave, type = "number" }) => {
+const EditableField = ({
+  initialValue,
+  onSave,
+  type = "number",
+  disabled = false,
+}) => {
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState(initialValue);
 
@@ -28,7 +33,16 @@ const EditableField = ({ initialValue, onSave, type = "number" }) => {
     }
   };
 
-  if (isEditing) {
+  const handleClick = (e) => {
+    if (disabled) {
+      e.stopPropagation(); // Prevent card click when clicking disabled field
+      return;
+    }
+    console.log("EditableField clicked, disabled:", disabled, "type:", type);
+    setIsEditing(true);
+  };
+
+  if (isEditing && !disabled) {
     return (
       <input
         type={type}
@@ -40,14 +54,15 @@ const EditableField = ({ initialValue, onSave, type = "number" }) => {
           type === "number" ? "w-8 text-center" : "w-full"
         } [-moz-appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none`}
         autoFocus
+        onClick={(e) => e.stopPropagation()} // Prevent card click when editing
       />
     );
   }
 
   return (
     <span
-      onClick={() => setIsEditing(true)}
-      className="cursor-pointer rounded px-0.5 hover:bg-blue-100"
+      onClick={handleClick}
+      className={`rounded px-0.5 ${!disabled && "cursor-pointer hover:bg-blue-100"}`}
     >
       {value}
     </span>
